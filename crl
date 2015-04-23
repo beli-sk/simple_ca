@@ -1,0 +1,21 @@
+#!/bin/bash
+
+DIR=`dirname "$0"`
+CA_CERT="${DIR}/ca/ca-cert.pem"
+CA_KEY="${DIR}/ca/ca-key.pem"
+REVOKED_DIR="${DIR}/revoked"
+CRL="${DIR}/ca/crl.pem"
+TMP="${DIR}/tmp"
+
+if [[ "$1" == '-h' ]] ; then
+	echo "Collect revoked certs from revoked/*.crt and output a CRL at ca/crl.pem." >&2
+	exit 1
+fi
+
+TMPF=`mktemp -p "$TMP"` || exit 1
+
+cat ${REVOKED_DIR}/*.crt > "$TMPF" 2> /dev/null && CERTS="--load-certificate $TMPF" || CERTS=""
+
+certtool --generate-crl --load-ca-privkey "$CA_KEY" --load-ca-certificate "$CA_CERT" $CERTS --outfile "$CRL"
+rm "$TMPF"
+

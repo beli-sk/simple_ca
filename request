@@ -1,0 +1,16 @@
+#!/bin/bash
+
+OUT="$1"
+
+if [[ -z "$OUT" || "$1" == '-h' ]] ; then
+	echo "use: $0 <output_file_base>"
+	echo "Extension .csr and .key will be added for request and key respectively."
+	exit 1
+fi
+
+REQ="${OUT}.csr"
+KEY="${OUT}.key"
+
+certtool --generate-privkey --sec-param high --outfile "$KEY" \
+	&& certtool --generate-request --load-privkey "$KEY" --outfile "$REQ"
+

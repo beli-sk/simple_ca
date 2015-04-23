@@ -1,0 +1,21 @@
+#!/bin/bash
+
+REQ="$1"
+OUT="$2"
+
+DIR=`dirname "$0"`
+CA_CERT="${DIR}/ca/ca-cert.pem"
+CA_KEY="${DIR}/ca/ca-key.pem"
+CERT_STORE="${DIR}/certs"
+
+if [[ -z "$OUT" || "$1" == '-h' ]] ; then
+	echo "use: $0 <request_file> <output_file>"
+	exit 1
+fi
+
+OUT_FILE=`basename "$OUT"`
+CERT_BACKUP="${CERT_STORE}/$OUT_FILE"
+
+certtool --generate-certificate --load-request "$REQ" --outfile "$OUT" \
+	--load-ca-certificate "$CA_CERT" --load-ca-privkey "$CA_KEY" \
+	&& cp -v "$OUT" "$CERT_BACKUP"

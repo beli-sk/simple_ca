@@ -1,0 +1,20 @@
+#!/bin/bash
+
+DIR=`dirname "$0"`
+CA_CERT="${DIR}/ca/ca-cert.pem"
+CA_KEY="${DIR}/ca/ca-key.pem"
+
+if [[ "$1" == "-h" ]] ; then
+	echo "Generate a new CA certificate and key." >&2
+	exit 1
+fi
+
+if [[ -e "$CA_CERT" || -e "$CA_KEY" ]] ; then
+	echo "CA certificate and/or private key already exists." >&2
+	echo "You need to delete the old one before new CA can be generated." >&2
+	echo "To delete the old CA data, delete all files from ca/ and certs/ dirs." >&2
+	exit 1
+fi
+
+certtool --generate-privkey --sec-param high --outfile "$CA_KEY" \
+	&& certtool --generate-self-signed --load-privkey "$CA_KEY" --outfile "$CA_CERT"
